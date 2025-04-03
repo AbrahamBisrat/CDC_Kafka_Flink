@@ -17,9 +17,9 @@ services:
    ports:
      - "3306:3306"
    environment:
-    - MYSQL_ROOT_PASSWORD=mysql
-    - MYSQL_USER=mysql
-    - MYSQL_PASSWORD=mysql
+    - MYSQL_ROOT_PASSWORD=123456
+    - MYSQL_USER=mysqluser
+    - MYSQL_PASSWORD=mysqlpw
   elasticsearch:
    image: elastic/elasticsearch:7.6.0
    environment:
@@ -38,28 +38,47 @@ services:
      soft: 65536
      hard: 65536
   kibana:
-   image: elastic/kibana:8.17.4
+   image: elastic/kibana:7.6.0
    ports:
      - "5601:5601"
    depends_on:
      - elasticsearch
-  zookeeper:
-   image: zookeeper:latest
-   ports:
-     - "2181:2181"
   kafka:
-   image: bitnami/kafka:latest
+   image: bitnami/kafka:3.6
    ports:
-     - "9092:9092"
-     - "9094:9094"
-   depends_on:
-    - zookeeper
+    - "9092:9092"
+    - "9094:9094"
    environment:
-    - KAFKA_ADVERTISED_LISTENERS=INSIDE://:9094,OUTSIDE://localhost:9092
-    - KAFKA_LISTENERS=INSIDE://:9094,OUTSIDE://:9092
-    - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-    - KAFKA_INTER_BROKER_LISTENER_NAME=INSIDE
-    - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-    - KAFKA_CREATE_TOPICS="user_behaviour:1.1"
-   volumes:
-     - /var/run/docker.sock:/var/run/docker.sock
+    # Required KRaft settings
+    - KAFKA_CFG_PROCESS_ROLES=controller,broker
+    - KAFKA_CFG_NODE_ID=1
+    - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+    
+    # Listener configuration
+    - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+    - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+    - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+    
+    # Disable Zookeeper
+    - KAFKA_ENABLE_KRAFT=yes
+  # zookeeper:
+  #  image: zookeeper:latest
+  #  ports:
+  #    - "2181:2181"
+  # kafka:
+  #  image: bitnami/kafka:latest
+  #  ports:
+  #    - "9092:9092"
+  #    - "9094:9094"
+  #  depends_on:
+  #   - zookeeper
+  #  environment:
+  #   - KAFKA_ADVERTISED_LISTENERS=INSIDE://:9094,OUTSIDE://localhost:9092
+  #   - KAFKA_LISTENERS=INSIDE://:9094,OUTSIDE://:9092
+  #   - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+  #   - KAFKA_INTER_BROKER_LISTENER_NAME=INSIDE
+  #   - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+  #   - KAFKA_CREATE_TOPICS="user_behaviour:1.1"
+  #  volumes:
+  #    - /var/run/docker.sock:/var/run/docker.sock
