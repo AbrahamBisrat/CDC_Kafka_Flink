@@ -62,6 +62,15 @@ services:
     
     # Disable Zookeeper
     - KAFKA_ENABLE_KRAFT=yes
+  flink:
+    image: flink:1.17
+    ports:
+      - "8081:8081"
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink
+    command: jobmanager
+    depends_on:
+      - kafka
   # zookeeper:
   #  image: zookeeper:latest
   #  ports:
