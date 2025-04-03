@@ -1,93 +1,103 @@
+version: '3.8'
+
 x-logging: &logging
   driver: "json-file"
   options:
     max-size: "10m"
     max-file: "3"
+
 services:
   postgres:
-   image: debezium/example-postgres:1.1
-   ports:
-    - "5432:5432"
-   environment:
-    - POSTGRES_DB=postgres
-    - POSTGRES_USER=postgres
-    - POSTGRES_PASSWORD=postgres
+    image: debezium/example-postgres:1.1
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - flink-network
+
   mysql:
-   image: debezium/example-mysql:1.1
-   ports:
-     - "3306:3306"
-   environment:
-    - MYSQL_ROOT_PASSWORD=123456
-    - MYSQL_USER=mysqluser
-    - MYSQL_PASSWORD=mysqlpw
+    image: debezium/example-mysql:1.1
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=mysqlpw
+    networks:
+      - flink-network
+
   elasticsearch:
-   image: elastic/elasticsearch:7.6.0
-   environment:
-    - cluster.name=docker-cluster
-    - bootstrap.memory_lock=true
-    - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    - discovery.type=single-node
-   ports:
-     - "9200:9200"
-     - "9300:9300"
-   ulimits:
-    memlock:
-     soft: -1
-     hard: -1
-    nofile:
-     soft: 65536
-     hard: 65536
+    image: elastic/elasticsearch:7.6.0
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - flink-network
+
   kibana:
-   image: elastic/kibana:7.6.0
-   ports:
-     - "5601:5601"
-   depends_on:
-     - elasticsearch
+    image: elastic/kibana:7.6.0
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - flink-network
+
   kafka:
-   image: bitnami/kafka:3.6
-   ports:
-    - "9092:9092"
-    - "9094:9094"
-   environment:
-    # Required KRaft settings
-    - KAFKA_CFG_PROCESS_ROLES=controller,broker
-    - KAFKA_CFG_NODE_ID=1
-    - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-    - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
-    
-    # Listener configuration
-    - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-    - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
-    - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
-    
-    # Disable Zookeeper
-    - KAFKA_ENABLE_KRAFT=yes
-  flink:
-    image: flink:1.17
+    image: bitnami/kafka:3.6
+    ports:
+      - "9092:9092"
+      - "9094:9094"
+    environment:
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_ENABLE_KRAFT=yes
+    networks:
+      - flink-network
+
+  jobmanager:
+    image: flink:latest
+    container_name: jobmanager
+    command: jobmanager
     ports:
       - "8081:8081"
     environment:
-      - JOB_MANAGER_RPC_ADDRESS=flink
-    command: jobmanager
+      - FLINK_PROPERTIES=jobmanager.rpc.address:jobmanager
+    networks:
+      - flink-network
+
+  taskmanager:
+    image: flink:latest
+    container_name: taskmanager
+    command: taskmanager
+    environment:
+      - FLINK_PROPERTIES=jobmanager.rpc.address:jobmanager
+      - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=6
     depends_on:
-      - kafka
-  # zookeeper:
-  #  image: zookeeper:latest
-  #  ports:
-  #    - "2181:2181"
-  # kafka:
-  #  image: bitnami/kafka:latest
-  #  ports:
-  #    - "9092:9092"
-  #    - "9094:9094"
-  #  depends_on:
-  #   - zookeeper
-  #  environment:
-  #   - KAFKA_ADVERTISED_LISTENERS=INSIDE://:9094,OUTSIDE://localhost:9092
-  #   - KAFKA_LISTENERS=INSIDE://:9094,OUTSIDE://:9092
-  #   - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-  #   - KAFKA_INTER_BROKER_LISTENER_NAME=INSIDE
-  #   - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-  #   - KAFKA_CREATE_TOPICS="user_behaviour:1.1"
-  #  volumes:
-  #    - /var/run/docker.sock:/var/run/docker.sock
+      - jobmanager
+    networks:
+      - flink-network
+
+networks:
+  flink-network:
+    driver: bridge
