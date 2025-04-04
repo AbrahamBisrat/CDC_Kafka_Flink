@@ -51,7 +51,7 @@ CREATE TABLE shipments (
     destination VARCHAR(255) NOT NULL,
     has_arrived BOOLEAN NOT NULL
 );
-ALTER SEQUENCE public.shipments_shipment_id_seq RESTART WITH 1001;
+ALTER SEQUENCE public.shipments_shipment_id_seq RESTART WITH 10001;
 
 ALTER TABLE public.shipments REPLICA IDENTITY FULL;
 
