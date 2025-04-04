@@ -76,7 +76,7 @@ services:
       - flink-network
 
   jobmanager:
-    image: flink:latest
+    image: flink:1.17.1
     container_name: jobmanager
     command: jobmanager
     ports:
@@ -84,16 +84,19 @@ services:
     environment:
       - FLINK_PROPERTIES=jobmanager.rpc.address:jobmanager
     volumes:
-      - ./connectors/mysql-connector-j-9.1.0.jar:/opt/flink/lib/mysql-connector-j-9.1.0.jar:rw
-      - ./connectors/debezium-connector-postgres-3.1.0.Final.jar:/opt/flink/lib/debezium-connector-postgres-3.1.0.Final.jar:rw
-      - ./connectors/flink-connector-elasticsearch7_2.12-1.17.1.jar:/opt/flink/lib/flink-connector-elasticsearch7_2.12-1.17.1.jar:rw
-      - ./connectors/debezium-core-1.9.7.Final.jar:/opt/flink/lib/debezium-core-1.9.7.Final.jar:rw
+      - ./connectors/flink-connector-mysql-cdc-2.4.1.jar:/opt/flink/lib/flink-connector-mysql-cdc-2.4.1.jar:rw
+      - ./connectors/flink-sql-connector-postgres-cdc-2.4.1.jar:/opt/flink/lib/flink-sql-connector-postgres-cdc-2.4.1.jar:rw
+      - ./connectors/flink-cdc-pipeline-connector-elasticsearch-3.2.0.jar:/opt/flink/lib/flink-cdc-pipeline-connector-elasticsearch-3.2.0.jar:rw
+      - ./connectors/jackson-core-2.13.4.jar:/opt/flink/lib/jackson-core-2.13.4.jar:rw
+      - ./connectors/jackson-annotations-2.13.4.jar:/opt/flink/lib/jackson-annotations-2.13.4.jar:rw
+      - ./connectors/jackson-databind-2.13.4.jar:/opt/flink/lib/jackson-databind-2.13.4.jar:rw
+      - ./connectors/connect-api-3.6.0.jar:/opt/flink/lib/connect-api-3.6.0.jar:rw
       # - ./jobs/job.sql:/opt/flink/job.sql
     networks:
       - flink-network
 
   taskmanager:
-    image: flink:latest
+    image: flink:1.17.1
     container_name: taskmanager
     command: taskmanager
     environment:
@@ -102,10 +105,13 @@ services:
     depends_on:
       - jobmanager
     volumes:
-      - ./connectors/mysql-connector-j-9.1.0.jar:/opt/flink/lib/mysql-connector-j-9.1.0.jar:rw
-      - ./connectors/debezium-connector-postgres-3.1.0.Final.jar:/opt/flink/lib/debezium-connector-postgres-3.1.0.Final.jar:rw
-      - ./connectors/flink-connector-elasticsearch7_2.12-1.17.1.jar:/opt/flink/lib/flink-connector-elasticsearch7_2.12-1.17.1.jar:rw
-      - ./connectors/debezium-core-1.9.7.Final.jar:/opt/flink/lib/debezium-core-1.9.7.Final.jar:rw
+      - ./connectors/flink-connector-mysql-cdc-2.4.1.jar:/opt/flink/lib/flink-connector-mysql-cdc-2.4.1.jar:rw
+      - ./connectors/flink-sql-connector-postgres-cdc-2.4.1.jar:/opt/flink/lib/flink-sql-connector-postgres-cdc-2.4.1.jar:rw
+      - ./connectors/flink-cdc-pipeline-connector-elasticsearch-3.2.0.jar:/opt/flink/lib/flink-cdc-pipeline-connector-elasticsearch-3.2.0.jar:rw
+      - ./connectors/jackson-core-2.13.4.jar:/opt/flink/lib/jackson-core-2.13.4.jar:rw
+      - ./connectors/jackson-annotations-2.13.4.jar:/opt/flink/lib/jackson-annotations-2.13.4.jar:rw
+      - ./connectors/jackson-databind-2.13.4.jar:/opt/flink/lib/jackson-databind-2.13.4.jar:rw
+      - ./connectors/connect-api-3.6.0.jar:/opt/flink/lib/connect-api-3.6.0.jar:rw
     networks:
       - flink-network
 

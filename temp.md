@@ -1,5 +1,6 @@
 ### ___`MySQL`___
 ```sql
+
 CREATE DATABASE mydb;
 USE mydb;
 
@@ -34,6 +35,7 @@ INSERT INTO orders
 VALUES (default, "2023-01-01 10:00:00", "John Doe", 19.99, 101, true),
        (default, "2023-01-02 11:00:00", "Jane Smith", 29.99, 102, false),
        (default, "2023-01-04 13:00:00", "Bob Brown", 49.99, 104, false);
+
 ```
 <br />
 
@@ -41,6 +43,7 @@ VALUES (default, "2023-01-01 10:00:00", "John Doe", 19.99, 101, true),
 
 ### ___`PostgreSQL`___
 ```sql
+
 CREATE TABLE shipments (
     shipment_id SERIAL NOT NULL PRIMARY KEY,
     order_id SERIAL NOT NULL,
@@ -62,6 +65,7 @@ INSERT INTO shipments (
 VALUES (default, 1001, 'New York', 'Los Angeles', true),
        (default, 1002, 'Chicago', 'Houston', false),
        (default, 1003, 'San Francisco', 'Seattle', true);
+
 ```
 <br />
 
@@ -69,6 +73,7 @@ VALUES (default, 1001, 'New York', 'Los Angeles', true),
 
 ### ___`Flink SQL`___
 ```sql
+
 CREATE TABLE products (
     id INT NOT NULL,
     name STRING,
@@ -80,7 +85,9 @@ CREATE TABLE products (
     'username' = 'root',
     'password' = '123456',
     'database-name' = 'mydb',
-    'table-name' = 'products'
+    'table-name' = 'products',
+    'scan.incremental.snapshot.enabled' = 'true',
+    'scan.incremental.snapshot.chunk.key-column' = 'id'
 );
 
 CREATE TABLE orders (
@@ -97,7 +104,9 @@ CREATE TABLE orders (
     'username' = 'root',
     'password' = '123456',
     'database-name' = 'mydb',
-    'table-name' = 'orders'
+    'table-name' = 'orders',
+    'scan.incremental.snapshot.enabled' = 'true',
+    'scan.incremental.snapshot.chunk.key-column' = 'id'
 );
 
 CREATE TABLE shipments (
@@ -114,7 +123,8 @@ CREATE TABLE shipments (
     'password' = 'postgres',
     'database-name' = 'postgres',
     'schema-name' = 'public',
-    'table-name' = 'shipments'
+    'table-name' = 'shipments',
+    'slot.name' = 'flink_slot'
 );
 
 CREATE TABLE enriched_orders (
@@ -132,9 +142,11 @@ CREATE TABLE enriched_orders (
     has_arrived BOOLEAN,
     PRIMARY KEY (order_id) NOT ENFORCED
 ) WITH (
-    'connector' = 'elasticsearch-7',
+    'connector' = 'elasticsearch-6',
     'hosts' = 'http://localhost:9200',
-    'index' = 'enriched_orders'
+    'index' = 'enriched_orders',
+    'format' = 'json',
+    'document-type' = '_doc'
 );
 
 INSERT INTO enriched_orders
@@ -142,6 +154,7 @@ SELECT o.*, p.name, p.description, s.shipment_id, s.origin, s.destination, s.has
 FROM orders AS o
 LEFT JOIN products AS p ON o.product_id = p.id
 LEFT JOIN shipments AS s ON o.order_id = s.order_id;
+
 ```
 
 ```

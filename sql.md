@@ -115,7 +115,9 @@ CREATE TABLE products (
     'username' = 'root',
     'password' = '123456',
     'database-name' = 'mydb',
-    'table-name' = 'products'
+    'table-name' = 'products',
+    'scan.incremental.snapshot.enabled' = 'true',
+    'scan.incremental.snapshot.chunk.key-column' = 'id'
 );
 ```
 ```sql
@@ -133,7 +135,9 @@ CREATE TABLE orders (
     'username' = 'root',
     'password' = '123456',
     'database-name' = 'mydb',
-    'table-name' = 'orders'
+    'table-name' = 'orders',
+    'scan.incremental.snapshot.enabled' = 'true',
+    'scan.incremental.snapshot.chunk.key-column' = 'id'
 );
 ```
 ```sql
@@ -151,7 +155,8 @@ CREATE TABLE shipments (
     'password' = 'postgres',
     'database-name' = 'postgres',
     'schema-name' = 'public',
-    'table-name' = 'shipments'
+    'table-name' = 'shipments',
+    'slot.name' = 'flink_slot'
 );
 ```
 
@@ -171,9 +176,11 @@ CREATE TABLE enriched_orders (
     has_arrived BOOLEAN,
     PRIMARY KEY (order_id) NOT ENFORCED
 ) WITH (
-    'connector' = 'elasticsearch-7',
+    'connector' = 'elasticsearch-6',
     'hosts' = 'http://localhost:9200',
-    'index' = 'enriched_orders'
+    'index' = 'enriched_orders',
+    'format' = 'json',
+    'document-type' = '_doc'
 );
 ```
 
