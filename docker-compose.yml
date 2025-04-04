@@ -9,6 +9,8 @@ x-logging: &logging
 services:
   postgres:
     image: debezium/example-postgres:1.1
+    hostname: postgres
+    container_name: postgres
     ports:
       - "5432:5432"
     environment:
@@ -20,6 +22,8 @@ services:
 
   mysql:
     image: debezium/example-mysql:1.1
+    hostname: mysql
+    container_name: mysql
     ports:
       - "3306:3306"
     environment:
@@ -31,6 +35,8 @@ services:
 
   elasticsearch:
     image: elastic/elasticsearch:7.6.0
+    container_name: elasticsearch
+    hostname: elasticsearch
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
@@ -78,19 +84,24 @@ services:
   jobmanager:
     image: flink:1.17.1
     container_name: jobmanager
+    hostname: jobmanager
     command: jobmanager
     ports:
       - "8081:8081"
     environment:
-      - FLINK_PROPERTIES=jobmanager.rpc.address:jobmanager
+      - "FLINK_PROPERTIES=jobmanager.rpc.address: jobmanager"
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
     volumes:
-      - ./connectors/flink-connector-mysql-cdc-2.4.1.jar:/opt/flink/lib/flink-connector-mysql-cdc-2.4.1.jar:rw
+      - ./connectors/flink-sql-connector-mysql-cdc-2.4.1.jar:/opt/flink/lib/flink-sql-connector-mysql-cdc-2.4.1.jar:rw
       - ./connectors/flink-sql-connector-postgres-cdc-2.4.1.jar:/opt/flink/lib/flink-sql-connector-postgres-cdc-2.4.1.jar:rw
       - ./connectors/flink-cdc-pipeline-connector-elasticsearch-3.2.0.jar:/opt/flink/lib/flink-cdc-pipeline-connector-elasticsearch-3.2.0.jar:rw
       - ./connectors/jackson-core-2.13.4.jar:/opt/flink/lib/jackson-core-2.13.4.jar:rw
       - ./connectors/jackson-annotations-2.13.4.jar:/opt/flink/lib/jackson-annotations-2.13.4.jar:rw
       - ./connectors/jackson-databind-2.13.4.jar:/opt/flink/lib/jackson-databind-2.13.4.jar:rw
       - ./connectors/connect-api-3.6.0.jar:/opt/flink/lib/connect-api-3.6.0.jar:rw
+      # - ./connectors/debezium-connector-mysql-2.4.1.Final.jar:/opt/flink/lib/debezium-connector-mysql-2.4.1.Final.jar:rw
+      - ./connectors/kafka-clients-3.5.1.jar:/opt/flink/lib/kafka-clients-3.5.1.jar:rw
+      - ./connectors/debezium-api-2.4.1.Final.jar:/opt/flink/lib/debezium-api-2.4.1.Final.jar:rw
       # - ./jobs/job.sql:/opt/flink/job.sql
     networks:
       - flink-network
@@ -98,20 +109,25 @@ services:
   taskmanager:
     image: flink:1.17.1
     container_name: taskmanager
+    hostname: taskmanager
     command: taskmanager
     environment:
-      - FLINK_PROPERTIES=jobmanager.rpc.address:jobmanager
+      - "FLINK_PROPERTIES=jobmanager.rpc.address: jobmanager"
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
       - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=6
     depends_on:
       - jobmanager
     volumes:
-      - ./connectors/flink-connector-mysql-cdc-2.4.1.jar:/opt/flink/lib/flink-connector-mysql-cdc-2.4.1.jar:rw
+      - ./connectors/flink-sql-connector-mysql-cdc-2.4.1.jar:/opt/flink/lib/flink-sql-connector-mysql-cdc-2.4.1.jar:rw
       - ./connectors/flink-sql-connector-postgres-cdc-2.4.1.jar:/opt/flink/lib/flink-sql-connector-postgres-cdc-2.4.1.jar:rw
       - ./connectors/flink-cdc-pipeline-connector-elasticsearch-3.2.0.jar:/opt/flink/lib/flink-cdc-pipeline-connector-elasticsearch-3.2.0.jar:rw
       - ./connectors/jackson-core-2.13.4.jar:/opt/flink/lib/jackson-core-2.13.4.jar:rw
       - ./connectors/jackson-annotations-2.13.4.jar:/opt/flink/lib/jackson-annotations-2.13.4.jar:rw
       - ./connectors/jackson-databind-2.13.4.jar:/opt/flink/lib/jackson-databind-2.13.4.jar:rw
       - ./connectors/connect-api-3.6.0.jar:/opt/flink/lib/connect-api-3.6.0.jar:rw
+      # - ./connectors/debezium-connector-mysql-2.4.1.Final.jar:/opt/flink/lib/debezium-connector-mysql-2.4.1.Final.jar:rw
+      - ./connectors/kafka-clients-3.5.1.jar:/opt/flink/lib/kafka-clients-3.5.1.jar:rw
+      - ./connectors/debezium-api-2.4.1.Final.jar:/opt/flink/lib/debezium-api-2.4.1.Final.jar:rw
     networks:
       - flink-network
 

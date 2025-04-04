@@ -110,7 +110,7 @@ CREATE TABLE products (
     description STRING
 ) WITH (
     'connector' = 'mysql-cdc',
-    'hostname' = 'localhost',
+    'hostname' = 'mysql',
     'port' = '3306',
     'username' = 'root',
     'password' = '123456',
@@ -137,7 +137,7 @@ CREATE TABLE orders (
     'database-name' = 'mydb',
     'table-name' = 'orders',
     'scan.incremental.snapshot.enabled' = 'true',
-    'scan.incremental.snapshot.chunk.key-column' = 'id'
+    'scan.incremental.snapshot.chunk.key-column' = 'order_id'
 );
 ```
 ```sql
@@ -177,7 +177,7 @@ CREATE TABLE enriched_orders (
     PRIMARY KEY (order_id) NOT ENFORCED
 ) WITH (
     'connector' = 'elasticsearch-6',
-    'hosts' = 'http://localhost:9200',
+    'hosts' = 'http://elasticsearch:9200',
     'index' = 'enriched_orders',
     'format' = 'json',
     'document-type' = '_doc'
