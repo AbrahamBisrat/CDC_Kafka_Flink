@@ -1,35 +1,15 @@
-#### Start MySQL, PostgreSQL clients
-```bash
-mysql -u root -p123456
-
-psql -h localhost -U postgres
-```
-```shell
-OR from `docker-compose`:
-docker compose exec mysql mysql -uroot -p123456
-docker compose exec postgres psql -h localhost -U postgres
-docker compose exec jobmanager bin/sql-client.sh embedded
-```
-
-#### Start SQL client connected to the flink cluster: run from `JobManager`
-```bash
-bin/sql-client.sh embedded
-```
-
 ### ___`MySQL`___
 ```sql
 CREATE DATABASE mydb;
 USE mydb;
-```
-```sql
+
+
 CREATE TABLE products (
     id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(512)
 ) AUTO_INCREMENT=101;
-```
 
-```sql
 INSERT INTO products
 VALUES (default, "Scooter", "Small 2-wheel scooter"),
        (default, "car battery", "12V car battery"),
@@ -40,9 +20,7 @@ VALUES (default, "Scooter", "Small 2-wheel scooter"),
        (default, "rocks", "a box of assorted rocks"),
        (default, "jacket", "waterproof jacket"),
        (default, "spare tire", "spare tire");
-```
 
-```sql
 CREATE TABLE orders (
     order_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
     order_date DATETIME NOT NULL,
@@ -51,9 +29,7 @@ CREATE TABLE orders (
     product_id INTEGER NOT NULL,
     order_status BOOLEAN NOT NULL
 ) AUTO_INCREMENT=10001;
-```
 
-```sql
 INSERT INTO orders
 VALUES (default, "2023-01-01 10:00:00", "John Doe", 19.99, 101, true),
        (default, "2023-01-02 11:00:00", "Jane Smith", 29.99, 102, false),
@@ -73,20 +49,9 @@ CREATE TABLE shipments (
     has_arrived BOOLEAN NOT NULL
 );
 ALTER SEQUENCE public.shipments_shipment_id_seq RESTART WITH 1001;
-```
 
-_To see tables in postgres_
-```sql
-select * from pg_catalog.pg_tables;
-drop table table_name; -- unwanted default table removal if needed.
-```
-
-`For capturing changes in the shipments table, we need to set the REPLICA IDENTITY to FULL.`
-`OR you will lose track some of the columns in the table.`
-```sql
 ALTER TABLE public.shipments REPLICA IDENTITY FULL;
-```
-```sql
+
 INSERT INTO shipments (
     shipment_id,
     order_id,
@@ -117,8 +82,7 @@ CREATE TABLE products (
     'database-name' = 'mydb',
     'table-name' = 'products'
 );
-```
-```sql
+
 CREATE TABLE orders (
     order_id INT,
     order_date TIMESTAMP(0),
@@ -135,8 +99,7 @@ CREATE TABLE orders (
     'database-name' = 'mydb',
     'table-name' = 'orders'
 );
-```
-```sql
+
 CREATE TABLE shipments (
     shipment_id INT,
     order_id INT,
@@ -153,9 +116,7 @@ CREATE TABLE shipments (
     'schema-name' = 'public',
     'table-name' = 'shipments'
 );
-```
 
-```sql
 CREATE TABLE enriched_orders (
     order_id INT,
     order_date TIMESTAMP(0),
@@ -175,11 +136,7 @@ CREATE TABLE enriched_orders (
     'hosts' = 'http://localhost:9200',
     'index' = 'enriched_orders'
 );
-```
 
-`This combined view of orders, products, and shipments will be used to enrich the data.`
-`Will submit the job to the Flink cluster.`
-```sql
 INSERT INTO enriched_orders
 SELECT o.*, p.name, p.description, s.shipment_id, s.origin, s.destination, s.has_arrived
 FROM orders AS o

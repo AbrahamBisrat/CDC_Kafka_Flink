@@ -83,6 +83,12 @@ services:
       - "8081:8081"
     environment:
       - FLINK_PROPERTIES=jobmanager.rpc.address:jobmanager
+    volumes:
+      - ./connectors/mysql-connector-j-9.1.0.jar:/opt/flink/lib/mysql-connector-j-9.1.0.jar:rw
+      - ./connectors/debezium-connector-postgres-3.1.0.Final.jar:/opt/flink/lib/debezium-connector-postgres-3.1.0.Final.jar:rw
+      - ./connectors/flink-connector-elasticsearch7_2.12-1.17.1.jar:/opt/flink/lib/flink-connector-elasticsearch7_2.12-1.17.1.jar:rw
+      - ./connectors/debezium-core-1.9.7.Final.jar:/opt/flink/lib/debezium-core-1.9.7.Final.jar:rw
+      # - ./jobs/job.sql:/opt/flink/job.sql
     networks:
       - flink-network
 
@@ -95,6 +101,11 @@ services:
       - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=6
     depends_on:
       - jobmanager
+    volumes:
+      - ./connectors/mysql-connector-j-9.1.0.jar:/opt/flink/lib/mysql-connector-j-9.1.0.jar:rw
+      - ./connectors/debezium-connector-postgres-3.1.0.Final.jar:/opt/flink/lib/debezium-connector-postgres-3.1.0.Final.jar:rw
+      - ./connectors/flink-connector-elasticsearch7_2.12-1.17.1.jar:/opt/flink/lib/flink-connector-elasticsearch7_2.12-1.17.1.jar:rw
+      - ./connectors/debezium-core-1.9.7.Final.jar:/opt/flink/lib/debezium-core-1.9.7.Final.jar:rw
     networks:
       - flink-network
 
