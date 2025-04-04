@@ -94,9 +94,9 @@ INSERT INTO shipments (
     destination,
     has_arrived
 )
-VALUES (default, 1001, 'New York', 'Los Angeles', true),
-       (default, 1002, 'Chicago', 'Houston', false),
-       (default, 1003, 'San Francisco', 'Seattle', true);
+VALUES (default, 10001, 'New York', 'Los Angeles', true),
+       (default, 10002, 'Chicago', 'Houston', false),
+       (default, 10003, 'San Francisco', 'Seattle', true);
 ```
 <br />
 

@@ -51,7 +51,7 @@ CREATE TABLE shipments (
     destination VARCHAR(255) NOT NULL,
     has_arrived BOOLEAN NOT NULL
 );
-ALTER SEQUENCE public.shipments_shipment_id_seq RESTART WITH 10001;
+ALTER SEQUENCE public.shipments_shipment_id_seq RESTART WITH 1001;
 
 ALTER TABLE public.shipments REPLICA IDENTITY FULL;
 
@@ -62,9 +62,9 @@ INSERT INTO shipments (
     destination,
     has_arrived
 )
-VALUES (default, 1001, 'New York', 'Los Angeles', true),
-       (default, 1002, 'Chicago', 'Houston', false),
-       (default, 1003, 'San Francisco', 'Seattle', true);
+VALUES (default, 10001, 'New York', 'Los Angeles', true),
+       (default, 10002, 'Chicago', 'Houston', false),
+       (default, 10003, 'San Francisco', 'Seattle', true);
 
 ```
 <br />
@@ -189,8 +189,15 @@ VALUES (default, "2025-03-30 13:20:00", "Boiled Potatos", 108.18, 104, false);
 ```sql
 -- PostgreSQL
 -- Now that we have a new shipment, this will be sent to elasticsearch & update the record.
-INSERT INTO shipments
-VALUES (default, 10004, "Los Angeles", "Miami", false);
+INSERT INTO shipments (                                                   
+    shipment_id,
+    order_id,
+    origin,
+    destination,
+    has_arrived
+)
+VALUES (default, 10004, 'Los Angeles', 'Miami', false);
+
 ```
 
 ```sql
