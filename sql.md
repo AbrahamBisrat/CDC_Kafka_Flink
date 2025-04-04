@@ -130,7 +130,7 @@ CREATE TABLE orders (
     order_status BOOLEAN
 ) WITH (
     'connector' = 'mysql-cdc',
-    'hostname' = 'localhost',
+    'hostname' = 'mysql',
     'port' = '3306',
     'username' = 'root',
     'password' = '123456',
@@ -149,7 +149,7 @@ CREATE TABLE shipments (
     has_arrived BOOLEAN
 ) WITH (
     'connector' = 'postgres-cdc',
-    'hostname' = '127.0.0.1',
+    'hostname' = 'postgres',
     'port' = '5432',
     'username' = 'postgres',
     'password' = 'postgres',
@@ -226,8 +226,8 @@ VALUES (default, "2025-03-30 13:20:00", "Boiled Potatos", 108.18, 104, false);
 ```sql
 -- PostgreSQL
 -- Now that we have a new shipment, this will be sent to elasticsearch & update the record.
-INSERT INTO shipments
-VALUES (default, 10004, "Los Angeles", "Miami", false);
+INSERT INTO shipments (shipment_id, order_id, origin, destination, has_arrived)
+VALUES (default, 10004, 'Los Angeles', 'Miami', false);
 ```
 
 ```sql
@@ -257,15 +257,15 @@ DELETE FROM orders WHERE order_id = 10004;
 -- flink sql
 CREATE TABLE kafka_gmv (
     day_str STRING,
-    gmv DECIMAL(10, 5),
+    gmv DECIMAL(10, 5)
 ) WITH (
     'connector' = 'kafka',
     'topic' = 'kafka_gmv',
-    'properties.bootstrap.servers' = 'localhost:9092',
+    'properties.bootstrap.servers' = 'kafka:9092',
     'scan.startup.mode' = 'earliest-offset',
-    'properties.bootstrap.servers' = 'localhost:9092',
-    'format' = 'changelog-json',
+    'format' = 'debezium-json'
 );
+-- 'format' = 'changelog-json'
 ```
 ```sql
 -- flink sql

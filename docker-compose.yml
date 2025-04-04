@@ -66,6 +66,8 @@ services:
 
   kafka:
     image: bitnami/kafka:3.6
+    container_name: kafka
+    hostname: kafka
     ports:
       - "9092:9092"
       - "9094:9094"
@@ -102,6 +104,8 @@ services:
       # - ./connectors/debezium-connector-mysql-2.4.1.Final.jar:/opt/flink/lib/debezium-connector-mysql-2.4.1.Final.jar:rw
       - ./connectors/kafka-clients-3.5.1.jar:/opt/flink/lib/kafka-clients-3.5.1.jar:rw
       - ./connectors/debezium-api-2.4.1.Final.jar:/opt/flink/lib/debezium-api-2.4.1.Final.jar:rw
+      - ./connectors/flink-connector-kafka-1.17.1.jar:/opt/flink/lib/flink-connector-kafka-1.17.1.jar:rw
+      - ./connectors/flink-sql-connector-kafka-1.17.1.jar:/opt/flink/lib/flink-sql-connector-kafka-1.17.1.jar:rw
       # - ./jobs/job.sql:/opt/flink/job.sql
     networks:
       - flink-network
@@ -128,6 +132,8 @@ services:
       # - ./connectors/debezium-connector-mysql-2.4.1.Final.jar:/opt/flink/lib/debezium-connector-mysql-2.4.1.Final.jar:rw
       - ./connectors/kafka-clients-3.5.1.jar:/opt/flink/lib/kafka-clients-3.5.1.jar:rw
       - ./connectors/debezium-api-2.4.1.Final.jar:/opt/flink/lib/debezium-api-2.4.1.Final.jar:rw
+      - ./connectors/flink-connector-kafka-1.17.1.jar:/opt/flink/lib/flink-connector-kafka-1.17.1.jar:rw
+      - ./connectors/flink-sql-connector-kafka-1.17.1.jar:/opt/flink/lib/flink-sql-connector-kafka-1.17.1.jar:rw
     networks:
       - flink-network
 
